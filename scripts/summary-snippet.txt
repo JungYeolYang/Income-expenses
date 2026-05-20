@@ -1,0 +1,18 @@
+      <section className="table-section summary-section">
+        <h2>요약</h2>
+        <TAG className="summary-bar card">
+          <TAG className="summary-block">
+            <span className="label">월 수입 합계</span>
+            <strong className="income">{formatMoney(totals.totalIncome)}원</strong>
+            <span className="summary-detail">{incomeDetail}</span>
+          </CTAG>
+          <TAG>
+            <span className="label">월 지출 합계</span>
+            <strong className="expense">{formatMoney(totals.expense)}원</strong>
+          </CTAG>
+          <TAG>
+            <span className="label">월 순잉여</span>
+            <strong>{formatMoney(totals.balance)}원</strong>
+          </CTAG>
+        </CTAG>
+      </CSECTION>
