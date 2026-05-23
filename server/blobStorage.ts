@@ -24,7 +24,7 @@ export async function loadAppDataFromBlob(): Promise<AppData | null> {
 export async function saveAppDataToBlob(data: AppData): Promise<void> {
   try {
     await put(BLOB_PATHNAME, JSON.stringify(data), {
-      access: 'private',
+      access: 'public',
       addRandomSuffix: false,
       allowOverwrite: true,
     });
