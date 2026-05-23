@@ -1,7 +1,7 @@
 import cors from 'cors';
 import express from 'express';
-import { getDb, loadAppData, persistAppData } from './db.js';
-import type { AppData } from '../src/types.js';
+import { getDb } from './db.js';
+import { handleGetData, handleHealth, handlePutData } from './handlers.js';
 
 const PORT = Number(process.env.PORT) || 3001;
 const app = express();
@@ -9,38 +9,36 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true });
-});
-
-app.get('/api/data', (_req, res) => {
+app.get('/api/health', async (_req, res) => {
   try {
-    getDb();
-    res.json(loadAppData());
+    res.json(await handleHealth());
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: 'ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.' });
+    res.status(500).json({ error: '¼­¹ö ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù.' });
   }
 });
 
-app.put('/api/data', (req, res) => {
+app.get('/api/data', async (_req, res) => {
   try {
-    const data = req.body as AppData;
-    if (!data?.accounts?.income || !data.weeklyAmounts) {
-      res.status(400).json({ error: 'ì˜ëª»ëœ ë°ì´í„° í˜•ì‹ì…ë‹ˆë‹¤.' });
-      return;
-    }
-    persistAppData({
-      version: data.version ?? 1,
-      accounts: data.accounts,
-      weeklyAmounts: data.weeklyAmounts ?? {},
-      expenseMemos: data.expenseMemos ?? {},
-      annualBudgets: data.annualBudgets ?? {},
-    });
-    res.json({ ok: true });
+    getDb();
+    res.json(await handleGetData());
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: 'ì €ì¥ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.' });
+    res.status(500).json({ error: 'µ¥ÀÌÅÍ¸¦ ºÒ·¯¿ÀÁö ¸øÇß½À´Ï´Ù.' });
+  }
+});
+
+app.put('/api/data', async (req, res) => {
+  try {
+    await handlePutData(req.body);
+    res.json({ ok: true });
+  } catch (e) {
+    if (e instanceof Error && e.message === 'INVALID_DATA') {
+      res.status(400).json({ error: 'Àß¸øµÈ µ¥ÀÌÅÍ Çü½ÄÀÔ´Ï´Ù.' });
+      return;
+    }
+    console.error(e);
+    res.status(500).json({ error: 'ÀúÀå¿¡ ½ÇÆĞÇß½À´Ï´Ù.' });
   }
 });
 

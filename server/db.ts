@@ -6,7 +6,10 @@ import { createDefaultAccounts } from '../src/data/defaultAccounts.js';
 import type { AppData, AccountsByType } from '../src/types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const DATA_DIR =
+  process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN
+    ? '/tmp'
+    : path.join(__dirname, '..', 'data');
 const DB_PATH = path.join(DATA_DIR, 'finance.db');
 
 let db: Database.Database | null = null;
