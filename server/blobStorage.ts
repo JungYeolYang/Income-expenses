@@ -1,4 +1,4 @@
-import { head, put } from '@vercel/blob';
+import { get, put } from '@vercel/blob';
 import type { AppData } from '../src/types.js';
 
 const BLOB_PATHNAME = 'church-finance-data.json';
@@ -10,10 +10,11 @@ export function useBlobStorage(): boolean {
 
 export async function loadAppDataFromBlob(): Promise<AppData | null> {
   try {
-    const meta = await head(BLOB_PATHNAME);
-    const response = await fetch(meta.url);
-    if (!response.ok) return null;
-    return (await response.json()) as AppData;
+    const result = await get(BLOB_PATHNAME, { access: 'private' });
+    if (!result || result.statusCode !== 200 || !result.stream) return null;
+
+    const text = await new Response(result.stream).text();
+    return JSON.parse(text) as AppData;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (/not found|404|does not exist/i.test(message)) return null;
@@ -24,9 +25,10 @@ export async function loadAppDataFromBlob(): Promise<AppData | null> {
 export async function saveAppDataToBlob(data: AppData): Promise<void> {
   try {
     await put(BLOB_PATHNAME, JSON.stringify(data), {
-      access: 'public',
+      access: 'private',
       addRandomSuffix: false,
       allowOverwrite: true,
+      contentType: 'application/json',
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
