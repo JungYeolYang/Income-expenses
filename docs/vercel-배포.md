@@ -24,7 +24,12 @@ Vercel 서버리스 환경에서는 로컬용 SQLite 파일(`data/finance.db`)을 그대로 쓸 수 
 
 1. 팀/계정 상단 **Storage** → **income-expenses-blob** 클릭
 2. 상단 탭에서 **Projects**(개요/Overview 옆) 선택
-3. **Connect to Project** → **income-expenses-gamma** → Production(필요 시 Preview) 체크 → Connect
+3. **Connect to Project** → **배포 URL과 같은 프로젝트** 선택  
+   (예: 사이트가 `income-expenses-gamma.vercel.app` 이면 **`income-expenses-gamma`** 에 연결.  
+   이름만 비슷한 `income-expenses` 가 아닌지 확인)
+4. Production(필요 시 Preview) 체크 → Connect
+
+**주의:** Blob을 `income-expenses`에만 연결하고 `income-expenses-gamma`에 배포하면 API `/api/data` 가 실패합니다.
 
 연결 후 프로젝트 **Settings → Environment Variables**에  
 `BLOB_READ_WRITE_TOKEN` 또는 `BLOB_STORE_ID` + `VERCEL_OIDC_TOKEN` 이 보이면 성공입니다.

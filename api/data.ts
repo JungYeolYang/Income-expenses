@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (e instanceof Error && e.message === 'BLOB_NOT_CONFIGURED') {
       res.status(503).json({
         error:
-          'Vercel Blob이 연결되지 않았습니다. 프로젝트 Storage에서 Blob을 만들고 Connect한 뒤 재배포하세요.',
+          'Vercel Blob이 이 배포 프로젝트에 연결되지 않았습니다. Vercel 대시보드에서 배포 URL과 같은 프로젝트에 Blob을 Connect한 뒤 Redeploy 하세요.',
       });
       return;
     }
@@ -26,11 +26,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(400).json({ error: '잘못된 데이터 형식입니다.' });
       return;
     }
+    if (e instanceof Error && (e.message.startsWith('Blob ') || e.message.includes('Blob'))) {
+      res.status(503).json({
+        error: `${e.message} Vercel 대시보드에서 Blob이 이 배포 프로젝트에 연결됐는지 확인하고 Redeploy 하세요.`,
+      });
+      return;
+    }
     console.error(e);
     const message =
-      req.method === 'GET'
-        ? '데이터를 불러오지 못했습니다.'
-        : '저장에 실패했습니다.';
+      req.method === 'GET' ? '데이터를 불러오지 못했습니다.' : '저장에 실패했습니다.';
     res.status(500).json({ error: message });
   }
 }
