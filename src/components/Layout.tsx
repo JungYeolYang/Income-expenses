@@ -18,7 +18,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <div className="app">
       <header className="header">
         <div className="brand">
-          <span className="brand-icon">?</span>
+          <span className="brand-icon" aria-hidden="true">{'\u26EA'}</span>
           <h1>교회 재정 관리</h1>
         </div>
         <nav className="nav">

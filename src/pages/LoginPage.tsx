@@ -24,7 +24,7 @@ export function LoginPage() {
     <div className="login-screen">
       <form className="login-card" onSubmit={(e) => void onSubmit(e)}>
         <div className="login-brand">
-          <span className="brand-icon">⛪</span>
+          <span className="brand-icon" aria-hidden="true">{'\u26EA'}</span>
           <h1>교회 재정 관리</h1>
         </div>
         <p className="login-desc">관리자 비밀번호를 입력하세요.</p>
