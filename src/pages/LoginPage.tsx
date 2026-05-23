@@ -24,7 +24,7 @@ export function LoginPage() {
     <div className="login-screen">
       <form className="login-card" onSubmit={(e) => void onSubmit(e)}>
         <div className="login-brand">
-          <span className="brand-icon">?</span>
+          <span className="brand-icon">⛪</span>
           <h1>교회 재정 관리</h1>
         </div>
         <p className="login-desc">관리자 비밀번호를 입력하세요.</p>
@@ -44,7 +44,6 @@ export function LoginPage() {
         <button type="submit" className="btn primary login-submit" disabled={submitting || !password}>
           {submitting ? '확인 중…' : '로그인'}
         </button>
-        <p className="login-hint">최초 비밀번호: 9999 (로그인 후 변경 가능)</p>
       </form>
     </div>
   );
