@@ -1,23 +1,25 @@
 import type { PageId } from '../types';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 
 const NAV: { id: PageId; label: string }[] = [
-  { id: 'monthly', label: 'ì›”ê°„ ì‹¤ì ' },
-  { id: 'budget', label: 'ì—°ê°„ ì˜ˆì‚°' },
-  { id: 'stats', label: 'ê¸°ê°„ í†µê³„' },
-  { id: 'accounts', label: 'ê³„ì • ê´€ë¦¬' },
-  { id: 'backup', label: 'ë°±ì—…' },
+  { id: 'monthly', label: '¿ùº° ½ÇÀû' },
+  { id: 'budget', label: '¿¬°£ ¿¹»ê' },
+  { id: 'stats', label: '±â°£ Åë°è' },
+  { id: 'accounts', label: '°èÁ¤ °ü¸®' },
+  { id: 'backup', label: '¹é¾÷' },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { page, setPage, loading, saving, error, retryLoad } = useApp();
+  const { logout } = useAuth();
 
   return (
     <div className="app">
       <header className="header">
         <div className="brand">
-          <span className="brand-icon">âœ¦</span>
-          <h1>êµíšŒ ì¬ì • ê´€ë¦¬</h1>
+          <span className="brand-icon">?</span>
+          <h1>±³È¸ ÀçÁ¤ °ü¸®</h1>
         </div>
         <nav className="nav">
           {NAV.map((item) => (
@@ -32,20 +34,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="header-status">
-          {loading && <span className="status-pill">ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘â€¦</span>}
-          {!loading && saving && <span className="status-pill saving">ì €ì¥ ì¤‘â€¦</span>}
-          {!loading && !saving && !error && <span className="status-pill ok">SQLite ì €ì¥ë¨</span>}
+          {loading && <span className="status-pill">ºÒ·¯¿À´Â Áß¡¦</span>}
+          {!loading && saving && <span className="status-pill saving">ÀúÀå Áß¡¦</span>}
+          {!loading && !saving && !error && <span className="status-pill ok">ÀúÀåµÊ</span>}
           {error && (
             <span className="status-pill error">
               {error}
               <button type="button" className="link-btn" onClick={() => void retryLoad()}>
-                ë‹¤ì‹œ ì‹œë„
+                ´Ù½Ã ½Ãµµ
               </button>
             </span>
           )}
+          <button type="button" className="nav-btn logout-btn" onClick={() => void logout()}>
+            ·Î±×¾Æ¿ô
+          </button>
         </div>
       </header>
-      <main className="main">{loading ? <p className="loading-msg">ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘ì…ë‹ˆë‹¤â€¦</p> : error ? null : children}</main>
+      <main className="main">{loading ? <p className="loading-msg">µ¥ÀÌÅÍ¸¦ ºÒ·¯¿À´Â ÁßÀÔ´Ï´Ù¡¦</p> : error ? null : children}</main>
     </div>
   );
 }

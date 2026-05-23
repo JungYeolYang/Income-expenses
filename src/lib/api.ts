@@ -2,19 +2,40 @@ import type { AppData } from '../types';
 
 const API_BASE = '/api';
 
+async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
+  return fetch(`${API_BASE}${path}`, {
+    credentials: 'include',
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      ...init?.headers,
+    },
+  });
+}
+
+async function readError(res: Response): Promise<string> {
+  try {
+    const body = (await res.json()) as { error?: string };
+    return body.error ?? '¿äÃ»¿¡ ½ÇÆĞÇß½À´Ï´Ù.';
+  } catch {
+    return '¿äÃ»¿¡ ½ÇÆĞÇß½À´Ï´Ù.';
+  }
+}
+
 export async function fetchAppData(): Promise<AppData> {
-  const res = await fetch(`${API_BASE}/data`);
-  if (!res.ok) throw new Error('ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.');
+  const res = await apiFetch('/data');
+  if (res.status === 401) throw new Error('UNAUTHORIZED');
+  if (!res.ok) throw new Error(await readError(res));
   return res.json() as Promise<AppData>;
 }
 
 export async function saveAppDataRemote(data: AppData): Promise<void> {
-  const res = await fetch(`${API_BASE}/data`, {
+  const res = await apiFetch('/data', {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('ì €ì¥ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.');
+  if (res.status === 401) throw new Error('UNAUTHORIZED');
+  if (!res.ok) throw new Error(await readError(res));
 }
 
 export async function checkApiHealth(): Promise<boolean> {

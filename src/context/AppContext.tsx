@@ -48,8 +48,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...loaded,
         expenseMemos: loaded.expenseMemos ?? {},
       });
-    } catch {
-      setError('ì„œë²„ì— ì—°ê²°í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. API ì„œë²„ê°€ ì‹¤í–‰ ì¤‘ì¸ì§€ í™•ì¸í•˜ì„¸ìš”. (npm run dev)');
+    } catch (e) {
+      if (e instanceof Error && e.message === 'UNAUTHORIZED') {
+        setError('·Î±×ÀÎÀÌ ÇÊ¿äÇÕ´Ï´Ù. ÆäÀÌÁö¸¦ »õ·Î°íÄ§ÇÏ¼¼¿ä.');
+      } else {
+        setError('¼­¹ö¿¡ ¿¬°áÇÒ ¼ö ¾ø½À´Ï´Ù. API ¼­¹ö°¡ ½ÇÇà ÁßÀÎÁö È®ÀÎÇÏ¼¼¿ä. (npm run dev)');
+      }
     } finally {
       setLoading(false);
     }
@@ -70,7 +74,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     saveTimer.current = setTimeout(() => {
       setSaving(true);
       saveAppDataRemote(data)
-        .catch(() => setError('ì €ìž¥ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.'))
+        .catch((err) => {
+          if (err instanceof Error && err.message === 'UNAUTHORIZED') {
+            setError('·Î±×ÀÎÀÌ ¸¸·áµÇ¾ú½À´Ï´Ù. ´Ù½Ã ·Î±×ÀÎÇÏ¼¼¿ä.');
+          } else {
+            setError('ÀúÀå¿¡ ½ÇÆÐÇß½À´Ï´Ù.');
+          }
+        })
         .finally(() => setSaving(false));
     }, 400);
 
