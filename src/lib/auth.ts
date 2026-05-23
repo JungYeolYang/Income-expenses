@@ -14,9 +14,9 @@ async function authFetch(path: string, init?: RequestInit): Promise<Response> {
 async function readError(res: Response): Promise<string> {
   try {
     const body = (await res.json()) as { error?: string };
-    return body.error ?? '¿äÃ»¿¡ ½ÇÆĞÇß½À´Ï´Ù.';
+    return body.error ?? 'ìš”ì²­ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.';
   } catch {
-    return '¿äÃ»¿¡ ½ÇÆĞÇß½À´Ï´Ù.';
+    return 'ìš”ì²­ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.';
   }
 }
 

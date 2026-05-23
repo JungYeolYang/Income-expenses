@@ -30,7 +30,7 @@ function AuthenticatedApp() {
   const { authenticated, checking } = useAuth();
 
   if (checking) {
-    return <p className="loading-msg login-loading">È®ÀÎ Áß¡¦</p>;
+    return <p className="loading-msg login-loading">í™•ì¸ ì¤‘â€¦</p>;
   }
   if (!authenticated) {
     return <LoginPage />;

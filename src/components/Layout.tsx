@@ -3,11 +3,11 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 
 const NAV: { id: PageId; label: string }[] = [
-  { id: 'monthly', label: '¿ùº° ½ÇÀû' },
-  { id: 'budget', label: '¿¬°£ ¿¹»ê' },
-  { id: 'stats', label: '±â°£ Åë°è' },
-  { id: 'accounts', label: '°èÁ¤ °ü¸®' },
-  { id: 'backup', label: '¹é¾÷' },
+  { id: 'monthly', label: 'ì›”ë³„ ì‹¤ì ' },
+  { id: 'budget', label: 'ì—°ê°„ ì˜ˆì‚°' },
+  { id: 'stats', label: 'ê¸°ê°„ í†µê³„' },
+  { id: 'accounts', label: 'ê³„ì • ê´€ë¦¬' },
+  { id: 'backup', label: 'ë°±ì—…' },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -19,7 +19,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <header className="header">
         <div className="brand">
           <span className="brand-icon">?</span>
-          <h1>±³È¸ ÀçÁ¤ °ü¸®</h1>
+          <h1>êµíšŒ ì¬ì • ê´€ë¦¬</h1>
         </div>
         <nav className="nav">
           {NAV.map((item) => (
@@ -34,23 +34,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="header-status">
-          {loading && <span className="status-pill">ºÒ·¯¿À´Â Áß¡¦</span>}
-          {!loading && saving && <span className="status-pill saving">ÀúÀå Áß¡¦</span>}
-          {!loading && !saving && !error && <span className="status-pill ok">ÀúÀåµÊ</span>}
+          {loading && <span className="status-pill">ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘â€¦</span>}
+          {!loading && saving && <span className="status-pill saving">ì €ì¥ ì¤‘â€¦</span>}
+          {!loading && !saving && !error && <span className="status-pill ok">ì €ì¥ë¨</span>}
           {error && (
             <span className="status-pill error">
               {error}
               <button type="button" className="link-btn" onClick={() => void retryLoad()}>
-                ´Ù½Ã ½Ãµµ
+                ë‹¤ì‹œ ì‹œë„
               </button>
             </span>
           )}
           <button type="button" className="nav-btn logout-btn" onClick={() => void logout()}>
-            ·Î±×¾Æ¿ô
+            ë¡œê·¸ì•„ì›ƒ
           </button>
         </div>
       </header>
-      <main className="main">{loading ? <p className="loading-msg">µ¥ÀÌÅÍ¸¦ ºÒ·¯¿À´Â ÁßÀÔ´Ï´Ù¡¦</p> : error ? null : children}</main>
+      <main className="main">{loading ? <p className="loading-msg">ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘ì…ë‹ˆë‹¤â€¦</p> : error ? null : children}</main>
     </div>
   );
 }
