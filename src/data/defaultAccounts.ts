@@ -1,18 +1,18 @@
 import type { AccountsByType } from '../types';
 
+function slug(text: string): string {
+  return text.trim().replace(/[·()]/g, '').replace(/\s+/g, '-');
+}
+
 function cat(name: string, items: string[]) {
-  const id = `cat-${name}-${Math.random().toString(36).slice(2, 9)}`;
+  const id = `cat-${slug(name)}`;
   return {
     id,
     name,
-    items: items.map((n) => ({
-      id: `item-${n}-${Math.random().toString(36).slice(2, 9)}`,
-      name: n,
-    })),
+    items: items.map((n) => ({ id: `item-${slug(n)}`, name: n })),
   };
 }
 
-/** Stable IDs for default template (regenerated on first load only via createDefaultData) */
 export function createDefaultAccounts(): AccountsByType {
   const income = [
     cat('일반헌금', ['주일헌금', '십일조', '감사헌금', '구역헌금', '생일헌금', '아동부', '월정헌금']),

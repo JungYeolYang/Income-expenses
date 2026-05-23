@@ -12,6 +12,8 @@ import type { AppData, PageId } from '../types';
 import { fetchAppData, saveAppDataRemote } from '../lib/api';
 import { createDefaultData } from '../lib/storage';
 
+const SAVE_DEBOUNCE_MS = 600;
+
 interface AppContextValue {
   data: AppData;
   setData: React.Dispatch<React.SetStateAction<AppData>>;
@@ -35,19 +37,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const skipSave = useRef(true);
+  const hasHydrated = useRef(false);
+  const dataRef = useRef(data);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveInFlight = useRef(false);
+
+  dataRef.current = data;
+
+  const persistNow = useCallback(async (payload: AppData) => {
+    if (saveInFlight.current) return;
+    saveInFlight.current = true;
+    setSaving(true);
+    try {
+      await saveAppDataRemote(payload);
+      setError(null);
+    } catch (err) {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED') {
+        setError('로그인이 만료되었습니다. 다시 로그인하세요.');
+      } else {
+        setError('저장에 실패했습니다. 잠시 후 다시 시도하세요.');
+      }
+      throw err;
+    } finally {
+      saveInFlight.current = false;
+      setSaving(false);
+    }
+  }, []);
+
+  const scheduleSave = useCallback(
+    (payload: AppData) => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(() => {
+        saveTimer.current = null;
+        void persistNow(payload);
+      }, SAVE_DEBOUNCE_MS);
+    },
+    [persistNow],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    hasHydrated.current = false;
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
     try {
       const loaded = await fetchAppData();
-      skipSave.current = true;
       setData({
         ...loaded,
         expenseMemos: loaded.expenseMemos ?? {},
       });
+      hasHydrated.current = true;
     } catch (e) {
       if (e instanceof Error && e.message === 'UNAUTHORIZED') {
         setError('로그인이 필요합니다. 페이지를 새로고침하세요.');
@@ -64,30 +106,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   useEffect(() => {
-    if (skipSave.current) {
-      skipSave.current = false;
-      return;
-    }
-    if (loading || error) return;
+    if (!hasHydrated.current || loading || error) return;
+    scheduleSave(data);
+  }, [data, loading, error, scheduleSave]);
 
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      setSaving(true);
-      saveAppDataRemote(data)
-        .catch((err) => {
-          if (err instanceof Error && err.message === 'UNAUTHORIZED') {
-            setError('로그인이 만료되었습니다. 다시 로그인하세요.');
-          } else {
-            setError('저장에 실패했습니다.');
-          }
-        })
-        .finally(() => setSaving(false));
-    }, 400);
-
-    return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
+  useEffect(() => {
+    const flush = () => {
+      if (!hasHydrated.current || saveInFlight.current) return;
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+        void persistNow(dataRef.current);
+      }
     };
-  }, [data, loading, error]);
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    window.addEventListener('pagehide', flush);
+    window.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      window.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [persistNow]);
 
   const updateWeekly = useCallback((weekKey: string, itemId: string, amount: number) => {
     setData((prev) => {
@@ -128,10 +169,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const replaceData = useCallback((next: AppData) => {
-    skipSave.current = false;
-    setData(next);
-  }, []);
+  const replaceData = useCallback(
+    (next: AppData) => {
+      setData(next);
+      if (hasHydrated.current) {
+        void persistNow(next);
+      }
+    },
+    [persistNow],
+  );
 
   const value = useMemo(
     () => ({

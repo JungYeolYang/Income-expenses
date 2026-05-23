@@ -32,17 +32,10 @@ export async function fetchAppData(): Promise<AppData> {
 export async function saveAppDataRemote(data: AppData): Promise<void> {
   const res = await apiFetch('/data', {
     method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+    keepalive: true,
   });
   if (res.status === 401) throw new Error('UNAUTHORIZED');
   if (!res.ok) throw new Error(await readError(res));
-}
-
-export async function checkApiHealth(): Promise<boolean> {
-  try {
-    const res = await fetch(`${API_BASE}/health`);
-    return res.ok;
-  } catch {
-    return false;
-  }
 }

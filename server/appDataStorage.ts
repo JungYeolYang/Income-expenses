@@ -33,10 +33,8 @@ export async function getAppData(): Promise<AppData> {
   if (useBlobStorage()) {
     const fromBlob = await loadAppDataFromBlob();
     if (fromBlob) return normalizeAppData(fromBlob);
-
-    const seeded = createDefaultAppData();
-    await saveAppDataToBlob(seeded);
-    return seeded;
+    // Blob이 없을 때만 기본값 반환 (여기서 저장하지 않음 → 클라이언트 저장 시 생성)
+    return createDefaultAppData();
   }
 
   const { loadAppData } = await import('./db.js');
